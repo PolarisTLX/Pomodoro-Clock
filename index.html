@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Pomodoro Clock</title>
+  <link href="https://fonts.googleapis.com/css?family=Lato|Roboto" rel="stylesheet" type='text/css'>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous">
+  </script>
+</head>
+  <body>
+
+    <!--importing audio file!!!-->
+<audio id="buzzer" src="https://s3.amazonaws.com/freecodecamp/simonSound1.mp3" type="audio/mpeg"></audio>
+
+<div class="block text-center">
+  <div class="text-center">
+  <h1>Timer / Pomodoro Clock Project</h1>
+  <h4>Built with HTML 5, CSS3, Bootstrap, Javascipt and jQuery</h4>
+  </div>
+  </br>
+  </br>
+<div class="block text-center">
+  <div id="timeDiv">
+    <!--give id's to a lot of the items because we are going to hide some of them-->
+    <h1 id="sessionTitle">Session Time</h1> <!---->
+    <a href="#" class="btn btn-primary" id="minus5Min">-</a>
+    <h2 id="timeType"></h2> <!--this is for after timer has started-->
+
+    <h2 id="origNum">25</h2>  <!--called in JS-->
+    <a href="#" class="btn btn-primary" id="add5Min">+</a>
+
+  </div>
+  <div id="breakDiv">
+    <h1 id="breakTitle">Break Time</h1> <!---->
+    <a href="#" class="btn btn-primary" id="minus5Break">-</a>
+    <h2 id="breakNum">5</h2>  <!--called in JS-->
+    <a href="#" class="btn btn-primary" id="add5Break">+</a>
+  </div>
+  <a href="#" class="btn btn-warning" id="start">Start</a>
+  <a href="#" class="btn btn-primary" id="reset">Reset</a>
+</div>
+</div>
+
+
+    <style>
+
+    body{
+      background-image: url(https://images.unsplash.com/photo-1431499012454-31a9601150c9?dpr=1&auto=format&fit=crop&w=1080&h=720&q=80&cs=tinysrgb&crop=&bg=);
+      background-size: 100%;
+      background-attachment: fixed; /*keeps image in place*/
+      /*background-repeat: no-repeat; */
+      color: white;
+      font-family: "Lato";
+    }
+    .block{
+      background-color: black;
+      padding: 10px;
+      margin: 20px;
+      margin-left: 80px;
+      margin-right: 80px;
+      opacity: .80;
+      border-radius: 1em;
+    }
+    h2{
+      display:inline;  /*this puts all h2 item divs in one horizontal line! Cool!*/
+    }
+
+    #start{
+      margin:10px;
+      color: black;
+    }
+    #reset{
+      margin:10px;
+    }
+
+    </style>
+
+    <script>
+
+    //Inspiration from "Coding Tutorials 360" as well as "Mr Snow" on Youtube.
+
+    $(document).ready(function(){
+
+      var buzzer = $("#buzzer")[0];
+      //audio file is an array? so need to use just the [0] index, but this might not work with my file? YES IT IS NEEDED.
+
+      var count = 25; //these two values should match what the starting valued is in the HTML
+      var breakCount = 5;
+
+      $("#reset").hide();  //this hides the reset button, I may not want to do this
+
+      $("#start").click(function(){
+        $("#reset").hide();
+        var counter= setInterval(timer, 1000);  //setInterval() is a built in counting function,  1000 means 1 second (1000 miliseconds)
+
+        count *= 60;  //to turn into minutes
+
+
+      parseInt($("#breakNum").html()); //parseInt is to turn that breakNum into a integer number instead of a string
+
+      function timer(){
+
+          //once started, hide most buttons until reset is hit.
+          $("#start, #sessionTitle").hide();
+          $("#timeType").html("Time Remaining:");
+
+          count -=1;
+          if(count === 0){
+            clearInterval(counter); //this stops the countdown at 0 seconds.
+            buzzer.play(); //amazing!!!
+            $("#timeType").hide();
+            $("#sessionTitle").show(); //when done buttons appear again
+
+            //need to start the break function now
+            var startBreak = setInterval(breakTimer, 1000);
+            breakCount *= 60;  //to turn into minutes
+          }
+
+          // have to do with setting it to minutes:seconds
+          if(count%60>=10){
+          $("#origNum").html(Math.floor(count/60)+":"+count%60);
+        }
+        else{
+          $("#origNum").html(Math.floor(count/60)+":"+"0"+count%60);
+        }
+
+
+
+          function breakTimer(){
+            $("#breakTitle").hide();
+            $("#timeType").html("Break Time Left: ");
+            $("#timeType").show();
+
+            breakCount -=1;
+            if(breakCount ===0){
+              clearInterval(startBreak); //this stops the break countdown at 0 seconds.
+              buzzer.play();
+              $("#timeType").hide();
+            $("#breakTitle").show(); //when done buttons appear again
+              $("#reset").show();
+            }
+                  // have to do with setting it to minutes:seconds
+          if(breakCount%60>=10){
+            $("#breakNum").html(Math.floor(breakCount/60)+":"+breakCount%60);
+          }
+          else{
+            $("#breakNum").html(Math.floor(breakCount/60)+":"+"0"+breakCount%60);
+          }
+
+          }
+        }
+
+
+      });
+
+
+      $("#reset").click(function(){
+        count = 5;
+        breakCount = 5;
+        $("#origNum").html(count);
+        $("#breakNum").html(breakCount);
+        $("#start").show();
+        //$("#reset").hide();
+
+      });
+
+      //MAIN TIME TOGGLES
+      $("#minus5Min").click(function(){
+        if(count > 0){  //can't go negative
+          count -= 1;
+          $("#origNum").html(count); //updates the number displayed as well by targeting the origNum in the HTML
+        }
+      });
+      $("#add5Min").click(function(){
+        count += 1;
+        //console.log(count);
+        $("#origNum").html(count);
+      });
+
+      //BREAK TOGGLES
+      $("#minus5Break").click(function(){
+        if (breakCount > 0){
+          breakCount -= 1;
+          $("#breakNum").html(breakCount); //updates the number displayed as well by targeting the origNum in the HTML
+        }
+      });
+      $("#add5Break").click(function(){
+        breakCount += 1;
+        //console.log(count);
+        $("#breakNum").html(breakCount);
+      });
+
+    });
+
+    </script>
+
+  </body>
+</html>
